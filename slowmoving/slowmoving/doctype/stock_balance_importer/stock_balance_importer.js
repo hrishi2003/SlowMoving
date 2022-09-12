@@ -3,11 +3,12 @@
 
 frappe.ui.form.on('Stock Balance Importer', {
 	refresh: function(frm) {
-		frm.add_custom_button("Import ISE Data", 
+		frm.add_custom_button("Stock Balance Data", 
 	 		() => frm.events.import_data(frm)
         );
 	},
 	 import_data : function(frm) {
+		frappe.msgprint('HIIIII')
 	 	frappe.call({
 				"method":"slowmoving.slowmoving.doctype.stock_balance_importer.stock_balance_importer.make_entries",
 				"args":{
@@ -17,6 +18,7 @@ frappe.ui.form.on('Stock Balance Importer', {
 				},
 				freeze: true,
 				callback:function(r){
+					frappe.msgprint('HELLLOOO')
 					if(!r.exc) {
     					if(r.message) {
    							frappe.msgprint("done")
