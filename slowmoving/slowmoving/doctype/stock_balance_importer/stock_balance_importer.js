@@ -8,7 +8,6 @@ frappe.ui.form.on('Stock Balance Importer', {
         );
 	},
 	 import_data : function(frm) {
-		frappe.msgprint('HIIIII')
 	 	frappe.call({
 				"method":"slowmoving.slowmoving.doctype.stock_balance_importer.stock_balance_importer.make_entries",
 				"args":{
@@ -18,7 +17,6 @@ frappe.ui.form.on('Stock Balance Importer', {
 				},
 				freeze: true,
 				callback:function(r){
-					frappe.msgprint('HELLLOOO')
 					if(!r.exc) {
     					if(r.message) {
    							frappe.msgprint("done")
