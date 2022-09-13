@@ -33,19 +33,14 @@ def make_entries(file_name,warehouse_name,doc):
 	
 
 	for r in range(2,rows_count):
-		frappe.msgprint('IMPORT FILE iterate')
 		uom_list = frappe.db.get_list('UOM',pluck='name')
-		print('IMPORT FILE UOMLIST',uom_list)
 		uom_list_lower = [ele.lower() for ele in uom_list]
 		uom = (ise_file.cell(row=r,column=4)).value
 		uom_lower = uom.lower()
 		if uom and uom_lower not in uom_list_lower:
-			frappe.msgprint('IMPORT FILE UOMMMMMMMMM')
 			uom_doc = frappe.new_doc("UOM")
 			if uom_doc:
-				print('IMPORT FILE UOMMDOCCCC',uom_doc)
 				uom_doc.uom_name = uom
-				frappe.msgprint('IMPORT FILE UOMMSAAVVVVVVE')
 				uom_doc.save()
 			else:
 				frappe.throw("uom document not created")
@@ -53,8 +48,7 @@ def make_entries(file_name,warehouse_name,doc):
 
 		item = (ise_file.cell(row=r, column=2)).value
 		qty = (ise_file.cell(row=r,column=5)).value
-		print('I(*&^%$£%^&*()TEEEEEEEEMMMMMM',item)
-		print('qty(*&^%$£%^&*()TEEEEEEEEMMMMMM',qty)
+		
 		
 
 		if item not in item_list:
@@ -65,8 +59,9 @@ def make_entries(file_name,warehouse_name,doc):
 				packing_date = (ise_file.cell(row=r,column=1)).value
 				pack_date = datetime.strptime(str(packing_date),'%Y-%m-%d %H:%M:%S').date()
 				item_doc.item_name = name
+				item_doc.machine_type = (ise_file.cell(row=r,column=6)).value
 				item_doc.item_group = "Products"
-				item_doc.has_batch_no = 1
+				item_doc.has_batch_no = 0
 				
 				uom = (ise_file.cell(row=r,column=4)).value
 				item_doc.stock_uom = uom
@@ -98,6 +93,7 @@ def make_entries(file_name,warehouse_name,doc):
 
 
 					stc_ent_doc.save()
+					stc_ent_doc.submit()
 
 				else:
 					accepted_qty = i['qty_after_transaction'] - qty
@@ -118,6 +114,8 @@ def make_entries(file_name,warehouse_name,doc):
 
 
 					stc_ent_doc.save()
+					stc_ent_doc.submit()
+
 				
 
 		else:
@@ -138,6 +136,7 @@ def make_entries(file_name,warehouse_name,doc):
 
 
 			stc_ent_doc.save()
+			stc_ent_doc.submit()
 				
 	frappe.msgprint("Stock Entry is Successfully Created")
 
