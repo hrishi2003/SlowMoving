@@ -70,24 +70,30 @@ def make_entries(file_name,warehouse_name,doc):
 				frappe.throw("item document is not created")
 
 		stc_ent_doc = frappe.new_doc("Stock Entry")
-		stock_ledg_ent = frappe.db.get_list('Stock Ledger Entry', filters = {'item_code':item, 'warehouse':warehouse_name} ,fields=['item_code','qty_after_transaction'])
+		stock_ledg_ent = frappe.db.get_list('Stock Ledger Entry', filters = {'item_code':item, 'warehouse':warehouse_name} ,fields=['item_code','actual_qty'])
 		
 		if len(stock_ledg_ent)>= 1:
+			print('-------------------STOCK LEdger ENTRY-------------------------')
+			print('stock_ledg_ent',stock_ledg_ent)
 			for i in stock_ledg_ent:
-				if qty> i['qty_after_transaction']:
-					accepted_qty = qty - i['qty_after_transaction']
+				print('------------------MATERIAL Receipt---------------')
+				if qty> i['actual_qty']:
+					accepted_qty = qty - i['actual_qty']
 					stc_ent_doc.stock_entry_type = 'Material Receipt'
 					stc_ent_doc.to_warehouse = warehouse_name
 					item_code = (ise_file.cell(row=r,column=2)).value
 					item_name = (ise_file.cell(row=r,column=3)).value
-					accepted_qty = (ise_file.cell(row=r,column=5)).value
+					# accepted_qty = (ise_file.cell(row=r,column=5)).value
 					uom = (ise_file.cell(row=r,column=4)).value
 					stc_ent_doc.append("items",{
 						"item_code": item_code,
 						"item_name": item_name,
 						"t_warehouse": warehouse_name,
 						"qty" : accepted_qty,
+						"transfer_qty" : accepted_qty,
 						"uom" : uom,
+						"stock_uom" : uom,
+						"conversion_factor" : 1,
 						"allow_zero_valuation_rate" : 1,
 						})
 
@@ -96,19 +102,23 @@ def make_entries(file_name,warehouse_name,doc):
 					stc_ent_doc.submit()
 
 				else:
-					accepted_qty = i['qty_after_transaction'] - qty
+					print('------------------MATERIAL ISSUE---------------')
+					accepted_qty = i['actual_qty'] - qty
 					stc_ent_doc.stock_entry_type = 'Material Issue'
 					stc_ent_doc.from_warehouse = warehouse_name
 					item_code = (ise_file.cell(row=r,column=2)).value
 					item_name = (ise_file.cell(row=r,column=3)).value
-					accepted_qty = (ise_file.cell(row=r,column=5)).value
+					# accepted_qty = (ise_file.cell(row=r,column=5)).value
 					uom = (ise_file.cell(row=r,column=4)).value
 					stc_ent_doc.append("items",{
 						"item_code": item_code,
 						"item_name": item_name,
 						"s_warehouse": warehouse_name,
 						"qty" : accepted_qty,
+						"transfer_qty" : accepted_qty,
 						"uom" : uom,
+						"stock_uom" : uom,
+						"conversion_factor" : 1,
 						"allow_zero_valuation_rate" : 1,
 						})
 
@@ -119,6 +129,7 @@ def make_entries(file_name,warehouse_name,doc):
 				
 
 		else:
+			print('------------------MATERIAL Receipt---------------')
 			stc_ent_doc.stock_entry_type = 'Material Receipt'
 			stc_ent_doc.to_warehouse = warehouse_name
 			item_code = (ise_file.cell(row=r,column=2)).value
@@ -130,7 +141,10 @@ def make_entries(file_name,warehouse_name,doc):
 				"item_name": item_name,
 				"t_warehouse": warehouse_name,
 				"qty" : accepted_qty,
+				"transfer_qty" : accepted_qty,
 				"uom" : uom,
+				"stock_uom" : uom,
+				"conversion_factor" : 1,
 				"allow_zero_valuation_rate" : 1,
 				})
 
