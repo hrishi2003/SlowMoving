@@ -70,16 +70,17 @@ def make_entries(file_name,warehouse_name,doc):
 				frappe.throw("item document is not created")
 
 		stc_ent_doc = frappe.new_doc("Stock Entry")
-		stock_ledg_ent = frappe.db.get_list('Stock Ledger Entry', filters = {'item_code':item, 'warehouse':warehouse_name} ,fields=['item_code','actual_qty'])
+		availabe_qty = frappe.db.get_value('Bin',{'item_code':item, 'warehouse':warehouse_name} ,'actual_qty')
 		
-		if len(stock_ledg_ent)>= 1:
+		if availabe_qty:
 			print('-------------------STOCK LEdger ENTRY-------------------------')
-			print('stock_ledg_ent',stock_ledg_ent,stock_ledg_ent[0]['actual_qty'])
+			print('availabe_qty',availabe_qty)
 			# for i in stock_ledg_ent:
 			print('------------------MATERIAL Receipt---------------')
-			if qty> stock_ledg_ent[0]['actual_qty']:
-				accepted_qty = qty - stock_ledg_ent[0]['actual_qty']
+			if qty> availabe_qty:
+				accepted_qty = qty - availabe_qty
 				stc_ent_doc.stock_entry_type = 'Material Receipt'
+				stc_ent_doc.posting_date = (ise_file.cell(row=r,column=1)).value
 				stc_ent_doc.to_warehouse = warehouse_name
 				item_code = (ise_file.cell(row=r,column=2)).value
 				item_name = (ise_file.cell(row=r,column=3)).value
@@ -103,11 +104,12 @@ def make_entries(file_name,warehouse_name,doc):
 
 			else:
 				print('------------------MATERIAL ISSUE---------------')
-				accepted_qty = stock_ledg_ent[0]['actual_qty'] - qty
+				accepted_qty = availabe_qty - qty
 				stc_ent_doc.stock_entry_type = 'Material Issue'
 				stc_ent_doc.from_warehouse = warehouse_name
 				item_code = (ise_file.cell(row=r,column=2)).value
 				item_name = (ise_file.cell(row=r,column=3)).value
+				stc_ent_doc.posting_date = (ise_file.cell(row=r,column=1)).value
 				# accepted_qty = (ise_file.cell(row=r,column=5)).value
 				uom = (ise_file.cell(row=r,column=4)).value
 				stc_ent_doc.append("items",{
@@ -132,6 +134,7 @@ def make_entries(file_name,warehouse_name,doc):
 			print('------------------MATERIAL Receipt---------------')
 			stc_ent_doc.stock_entry_type = 'Material Receipt'
 			stc_ent_doc.to_warehouse = warehouse_name
+			stc_ent_doc.posting_date = (ise_file.cell(row=r,column=1)).value
 			item_code = (ise_file.cell(row=r,column=2)).value
 			item_name = (ise_file.cell(row=r,column=3)).value
 			accepted_qty = (ise_file.cell(row=r,column=5)).value
