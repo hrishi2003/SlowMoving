@@ -23,7 +23,9 @@ def make_entries(file_name,warehouse_name,doc):
 	
 	ise_sheet = openpyxl.load_workbook(media_file_path)
 	ise_file = ise_sheet.active
-	rows_count = ise_file.max_row+1
+	rows_count = (ise_file.max_row)+1
+	print('------------------------------rows_count--------------------')
+	print(rows_count, type(rows_count))
 	
 	
 
@@ -36,7 +38,10 @@ def make_entries(file_name,warehouse_name,doc):
 		uom_list = frappe.db.get_list('UOM',pluck='name')
 		uom_list_lower = [ele.lower() for ele in uom_list]
 		uom = (ise_file.cell(row=r,column=4)).value
-		uom_lower = uom.lower()
+		uom = str(uom)
+		print('------------------------------------------')
+		print(r,uom,type(uom))
+		uom_lower = uom.lower() or ''
 		if uom and uom_lower not in uom_list_lower:
 			uom_doc = frappe.new_doc("UOM")
 			if uom_doc:
@@ -48,16 +53,18 @@ def make_entries(file_name,warehouse_name,doc):
 
 		item = (ise_file.cell(row=r, column=2)).value
 		qty = (ise_file.cell(row=r,column=5)).value
+		item = str(item)
 		
 		
 
-		if item not in item_list:
+		if item not in item_list and not frappe.db.exists("Item",item):
 			item_doc = frappe.new_doc("Item")
 			if item_doc:
 				item_doc.item_code = item
 				name = (ise_file.cell(row=r,column=3)).value
-				packing_date = (ise_file.cell(row=r,column=1)).value
-				pack_date = datetime.strptime(str(packing_date),'%Y-%m-%d %H:%M:%S').date()
+				# packing_date = (ise_file.cell(row=r,column=1)).value
+				# packing_date = str(packing_date)
+				# pack_date = datetime.strptime(str(packing_date),'%Y-%m-%d %H:%M:%S').date()
 				item_doc.item_name = name
 				item_doc.machine_type = (ise_file.cell(row=r,column=6)).value
 				item_doc.item_group = "Products"
