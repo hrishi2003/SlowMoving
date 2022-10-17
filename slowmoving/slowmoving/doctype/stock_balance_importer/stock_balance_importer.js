@@ -24,5 +24,11 @@ frappe.ui.form.on('Stock Balance Importer', {
 						}
         	   })
 
-	 }
+	 },
+	 download_template(frm) {
+		open_url_post(frappe.request.url, {
+			cmd: 'frappe.core.doctype.file.file.download_file',
+			file_url: '/private/files/Sample Upload Template (1).xlsx'
+		});
+	},
 });

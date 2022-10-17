@@ -6,6 +6,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "download_template",
   "ise_file",
   "warehouse"
  ],
@@ -20,11 +21,16 @@
    "fieldtype": "Link",
    "label": "Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "fieldname": "download_template",
+   "fieldtype": "Button",
+   "label": "Download Template"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-09-11 12:18:25.085164",
+ "modified": "2022-10-16 19:01:54.748233",
  "modified_by": "Administrator",
  "module": "Slowmoving",
  "name": "Stock Balance Importer",
