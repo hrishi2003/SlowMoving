@@ -101,7 +101,7 @@ def make_entries(file_name,warehouse_name,doc):
 					stc_ent_doc.save()
 					stc_ent_doc.submit()
 
-			else:
+			if qty< availabe_qty:
 				accepted_qty = availabe_qty - qty
 				stc_ent_doc.stock_entry_type = 'Material Issue'
 				stc_ent_doc.from_warehouse = warehouse_name
