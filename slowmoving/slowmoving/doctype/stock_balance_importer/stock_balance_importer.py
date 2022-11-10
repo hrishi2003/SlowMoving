@@ -30,11 +30,14 @@ def make_entries(file_name,warehouse_name,doc):
 	item_list = frappe.db.get_list('Item',pluck='name')
 	uom_list = frappe.db.get_list('UOM',pluck='name')
 	
-
+	ic = []
+	l = []
 	for r in range(2,rows_count):
 		uom_list = frappe.db.get_list('UOM',pluck='name')
 		uom_list_lower = [ele.lower() for ele in uom_list]
 		uom = (ise_file.cell(row=r,column=4)).value
+		item_code = (ise_file.cell(row=r,column=2)).value
+		ic.append(item_code)
 		if uom is not None:
 			uom_lower = uom.lower()
 			if uom and uom_lower not in uom_list_lower:
@@ -49,6 +52,7 @@ def make_entries(file_name,warehouse_name,doc):
 			item = (ise_file.cell(row=r, column=2)).value
 			qty = (ise_file.cell(row=r,column=5)).value
 			item = str(item)
+
 			
 			
 
@@ -73,6 +77,13 @@ def make_entries(file_name,warehouse_name,doc):
 
 		stc_ent_doc = frappe.new_doc("Stock Entry")
 		availabe_qty = frappe.db.get_value('Bin',{'item_code':item, 'warehouse':warehouse_name} ,'actual_qty')
+		# se = frappe.db.get_list('Bin',fields=['item_code'],pluck='item_code')
+		se = frappe.db.get_values('Bin',{'warehouse':warehouse_name},'item_code')
+		item_code = (ise_file.cell(row=r,column=2)).value
+		for i in se:
+			for j in i:
+				l.append(j)
+				
 		
 		if availabe_qty:
 			if qty> availabe_qty:
@@ -127,6 +138,9 @@ def make_entries(file_name,warehouse_name,doc):
 					stc_ent_doc.save()
 					stc_ent_doc.submit()
 
+			# if item_code not in l:
+			# 	qt = frappe.db.get_values('Bin',{'warehouse':warehouse_name},'item_code')
+
 				
 
 		else:
@@ -153,6 +167,33 @@ def make_entries(file_name,warehouse_name,doc):
 
 				stc_ent_doc.save()
 				stc_ent_doc.submit()
+
+	
+	for i in l:
+		if i not in ic:
+			stc_ent_doc = frappe.new_doc("Stock Entry")
+			qt = frappe.db.get_value('Bin',{'warehouse':warehouse_name,'item_code':i},'actual_qty')
+			uom  = frappe.db.get_value('Bin',{'warehouse':warehouse_name,'item_code':i},'stock_uom')
+
+			stc_ent_doc.stock_entry_type = 'Material Issue'
+			stc_ent_doc.from_warehouse = warehouse_name
+			if qt > 0.0:
+				stc_ent_doc.append("items",{
+					"item_code": i,
+					# "item_name": item_name,
+					"s_warehouse": warehouse_name,
+					"qty" : float(qt),
+					"transfer_qty" : float(qt),
+					"uom" : uom,
+					"stock_uom" : uom,
+					"conversion_factor" : 1,
+					"allow_zero_valuation_rate" : 1,
+					})
+
+
+				stc_ent_doc.save()
+				stc_ent_doc.submit()
+
 				
 	frappe.msgprint("Stock Entry is Successfully Created")
 
