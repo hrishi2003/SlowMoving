@@ -14,6 +14,8 @@ class StockBalanceImporter(Document):
 
 @frappe.whitelist()
 def make_entries(file_name,warehouse_name,doc):
+	frappe.log_error('sdjsjdsajdjjsdjsadjsajbj')
+	print('\n\n\n\njajsjjsaj\n\n\n\n\n\n')
 	ware_doc = frappe.get_doc("Warehouse",warehouse_name)
 	media_file_path = frappe.get_doc("File", {"file_url": file_name}).get_full_path()
 	split_tup = os.path.splitext(media_file_path)
@@ -196,4 +198,9 @@ def make_entries(file_name,warehouse_name,doc):
 
 				
 	frappe.msgprint("Stock Entry is Successfully Created")
+
+@frappe.whitelist()
+def make_st_ent(file_name,warehouse_name,doc):
+	frappe.enqueue(make_entries, queue='long',file_name=file_name,warehouse_name=warehouse_name,doc=doc)
+
 
