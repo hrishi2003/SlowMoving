@@ -21,6 +21,7 @@
    "options": "Item"
   },
   {
+   "fetch_from": "item_code.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
    "label": "Item Name"
@@ -51,7 +52,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-01 08:59:20.920857",
+ "modified": "2023-02-01 09:02:15.676417",
  "modified_by": "Administrator",
  "module": "Slowmoving",
  "name": "Stock Balance Form",
