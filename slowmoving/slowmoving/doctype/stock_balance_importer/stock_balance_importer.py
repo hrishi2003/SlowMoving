@@ -77,127 +77,139 @@ def make_entries(file_name,warehouse_name,doc):
 				else:
 					frappe.throw("item document is not created")
 
-		stc_ent_doc = frappe.new_doc("Stock Entry")
-		availabe_qty = frappe.db.get_value('Bin',{'item_code':item, 'warehouse':warehouse_name} ,'actual_qty')
-		# se = frappe.db.get_list('Bin',fields=['item_code'],pluck='item_code')
-		se = frappe.db.get_values('Bin',{'warehouse':warehouse_name},'item_code')
-		item_code = (ise_file.cell(row=r,column=2)).value
-		for i in se:
-			for j in i:
-				l.append(j)
+		stc_bal = frappe.new_doc("Stock Balance Form")
+		if stc_bal:
+			stc_bal.item_code = (ise_file.cell(row=r,column=2)).value
+			stc_bal.item_name = (ise_file.cell(row=r,column=3)).value
+			stc_bal.machine_type = (ise_file.cell(row=r,column=6)).value
+			stc_bal.stock_uom = (ise_file.cell(row=r,column=4)).value
+			stc_bal.warehouse = warehouse_name
+			stc_bal.balance_qty = (ise_file.cell(row=r,column=5)).value
+			stc_bal.save()
+
+	frappe.msgprint("Stock Balance Form is Successfully Created")
+
+# 		stc_ent_doc = frappe.new_doc("Stock Entry")
+# 		availabe_qty = frappe.db.get_value('Bin',{'item_code':item, 'warehouse':warehouse_name} ,'actual_qty')
+# 		# se = frappe.db.get_list('Bin',fields=['item_code'],pluck='item_code')
+# 		se = frappe.db.get_values('Bin',{'warehouse':warehouse_name},'item_code')
+# 		item_code = (ise_file.cell(row=r,column=2)).value
+# 		for i in se:
+# 			for j in i:
+# 				l.append(j)
 				
 		
-		if availabe_qty:
-			if qty> availabe_qty:
-				accepted_qty = qty - availabe_qty
-				stc_ent_doc.stock_entry_type = 'Material Receipt'
-				stc_ent_doc.posting_date = (ise_file.cell(row=r,column=1)).value
-				stc_ent_doc.to_warehouse = warehouse_name
-				item_code = (ise_file.cell(row=r,column=2)).value
-				item_name = (ise_file.cell(row=r,column=3)).value
-				# accepted_qty = (ise_file.cell(row=r,column=5)).value
-				uom = (ise_file.cell(row=r,column=4)).value
-				if item_code is not None and item_name is not None and uom is not None:
-					stc_ent_doc.append("items",{
-						"item_code": item_code,
-						"item_name": item_name,
-						"t_warehouse": warehouse_name,
-						"qty" : accepted_qty,
-						"transfer_qty" : accepted_qty,
-						"uom" : uom,
-						"stock_uom" : uom,
-						"conversion_factor" : 1,
-						"allow_zero_valuation_rate" : 1,
-						})
+# 		if availabe_qty:
+# 			if qty> availabe_qty:
+# 				accepted_qty = qty - availabe_qty
+# 				stc_ent_doc.stock_entry_type = 'Material Receipt'
+# 				stc_ent_doc.posting_date = (ise_file.cell(row=r,column=1)).value
+# 				stc_ent_doc.to_warehouse = warehouse_name
+# 				item_code = (ise_file.cell(row=r,column=2)).value
+# 				item_name = (ise_file.cell(row=r,column=3)).value
+# 				# accepted_qty = (ise_file.cell(row=r,column=5)).value
+# 				uom = (ise_file.cell(row=r,column=4)).value
+# 				if item_code is not None and item_name is not None and uom is not None:
+# 					stc_ent_doc.append("items",{
+# 						"item_code": item_code,
+# 						"item_name": item_name,
+# 						"t_warehouse": warehouse_name,
+# 						"qty" : accepted_qty,
+# 						"transfer_qty" : accepted_qty,
+# 						"uom" : uom,
+# 						"stock_uom" : uom,
+# 						"conversion_factor" : 1,
+# 						"allow_zero_valuation_rate" : 1,
+# 						})
 
 
-					stc_ent_doc.save()
-					stc_ent_doc.submit()
+# 					stc_ent_doc.save()
+# 					stc_ent_doc.submit()
 
-			if qty< availabe_qty:
-				accepted_qty = availabe_qty - qty
-				stc_ent_doc.stock_entry_type = 'Material Issue'
-				stc_ent_doc.from_warehouse = warehouse_name
-				item_code = (ise_file.cell(row=r,column=2)).value
-				item_name = (ise_file.cell(row=r,column=3)).value
-				stc_ent_doc.posting_date = (ise_file.cell(row=r,column=1)).value
-				# accepted_qty = (ise_file.cell(row=r,column=5)).value
-				uom = (ise_file.cell(row=r,column=4)).value
-				if item_code is not None and item_name is not None and uom is not None:
-					stc_ent_doc.append("items",{
-						"item_code": item_code,
-						"item_name": item_name,
-						"s_warehouse": warehouse_name,
-						"qty" : accepted_qty,
-						"transfer_qty" : accepted_qty,
-						"uom" : uom,
-						"stock_uom" : uom,
-						"conversion_factor" : 1,
-						"allow_zero_valuation_rate" : 1,
-						})
+# 			if qty< availabe_qty:
+# 				accepted_qty = availabe_qty - qty
+# 				stc_ent_doc.stock_entry_type = 'Material Issue'
+# 				stc_ent_doc.from_warehouse = warehouse_name
+# 				item_code = (ise_file.cell(row=r,column=2)).value
+# 				item_name = (ise_file.cell(row=r,column=3)).value
+# 				stc_ent_doc.posting_date = (ise_file.cell(row=r,column=1)).value
+# 				# accepted_qty = (ise_file.cell(row=r,column=5)).value
+# 				uom = (ise_file.cell(row=r,column=4)).value
+# 				if item_code is not None and item_name is not None and uom is not None:
+# 					stc_ent_doc.append("items",{
+# 						"item_code": item_code,
+# 						"item_name": item_name,
+# 						"s_warehouse": warehouse_name,
+# 						"qty" : accepted_qty,
+# 						"transfer_qty" : accepted_qty,
+# 						"uom" : uom,
+# 						"stock_uom" : uom,
+# 						"conversion_factor" : 1,
+# 						"allow_zero_valuation_rate" : 1,
+# 						})
 
 
-					stc_ent_doc.save()
-					stc_ent_doc.submit()
+# 					stc_ent_doc.save()
+# 					stc_ent_doc.submit()
 
-			# if item_code not in l:
-			# 	qt = frappe.db.get_values('Bin',{'warehouse':warehouse_name},'item_code')
+# 			# if item_code not in l:
+# 			# 	qt = frappe.db.get_values('Bin',{'warehouse':warehouse_name},'item_code')
 
 				
 
-		else:
-			stc_ent_doc.stock_entry_type = 'Material Receipt'
-			stc_ent_doc.to_warehouse = warehouse_name
-			stc_ent_doc.posting_date = (ise_file.cell(row=r,column=1)).value
-			item_code = (ise_file.cell(row=r,column=2)).value
-			item_name = (ise_file.cell(row=r,column=3)).value
-			accepted_qty = (ise_file.cell(row=r,column=5)).value
-			uom = (ise_file.cell(row=r,column=4)).value
-			if item_code is not None and item_name is not None and uom is not None:
-				stc_ent_doc.append("items",{
-					"item_code": item_code,
-					"item_name": item_name,
-					"t_warehouse": warehouse_name,
-					"qty" : accepted_qty,
-					"transfer_qty" : accepted_qty,
-					"uom" : uom,
-					"stock_uom" : uom,
-					"conversion_factor" : 1,
-					"allow_zero_valuation_rate" : 1,
-					})
+# 		else:
+# 			stc_ent_doc.stock_entry_type = 'Material Receipt'
+# 			stc_ent_doc.to_warehouse = warehouse_name
+# 			stc_ent_doc.posting_date = (ise_file.cell(row=r,column=1)).value
+# 			item_code = (ise_file.cell(row=r,column=2)).value
+# 			item_name = (ise_file.cell(row=r,column=3)).value
+# 			accepted_qty = (ise_file.cell(row=r,column=5)).value
+# 			uom = (ise_file.cell(row=r,column=4)).value
+# 			if item_code is not None and item_name is not None and uom is not None:
+# 				stc_ent_doc.append("items",{
+# 					"item_code": item_code,
+# 					"item_name": item_name,
+# 					"t_warehouse": warehouse_name,
+# 					"qty" : accepted_qty,
+# 					"transfer_qty" : accepted_qty,
+# 					"uom" : uom,
+# 					"stock_uom" : uom,
+# 					"conversion_factor" : 1,
+# 					"allow_zero_valuation_rate" : 1,
+# 					})
 
 
-				stc_ent_doc.save()
-				stc_ent_doc.submit()
+# 				stc_ent_doc.save()
+# 				stc_ent_doc.submit()
 
 	
-	for i in l:
-		if i not in ic:
-			stc_ent_doc = frappe.new_doc("Stock Entry")
-			qt = frappe.db.get_value('Bin',{'warehouse':warehouse_name,'item_code':i},'actual_qty')
-			uom  = frappe.db.get_value('Bin',{'warehouse':warehouse_name,'item_code':i},'stock_uom')
+# 	for i in l:
+# 		if i not in ic:
+# 			stc_ent_doc = frappe.new_doc("Stock Entry")
+# 			qt = frappe.db.get_value('Bin',{'warehouse':warehouse_name,'item_code':i},'actual_qty')
+# 			uom  = frappe.db.get_value('Bin',{'warehouse':warehouse_name,'item_code':i},'stock_uom')
 
-			stc_ent_doc.stock_entry_type = 'Material Issue'
-			stc_ent_doc.from_warehouse = warehouse_name
-			if qt > 0.0:
-				stc_ent_doc.append("items",{
-					"item_code": i,
-					# "item_name": item_name,
-					"s_warehouse": warehouse_name,
-					"qty" : float(qt),
-					"transfer_qty" : float(qt),
-					"uom" : uom,
-					"stock_uom" : uom,
-					"conversion_factor" : 1,
-					"allow_zero_valuation_rate" : 1,
-					})
+# 			stc_ent_doc.stock_entry_type = 'Material Issue'
+# 			stc_ent_doc.from_warehouse = warehouse_name
+# 			if qt > 0.0:
+# 				stc_ent_doc.append("items",{
+# 					"item_code": i,
+# 					# "item_name": item_name,
+# 					"s_warehouse": warehouse_name,
+# 					"qty" : float(qt),
+# 					"transfer_qty" : float(qt),
+# 					"uom" : uom,
+# 					"stock_uom" : uom,
+# 					"conversion_factor" : 1,
+# 					"allow_zero_valuation_rate" : 1,
+# 					})
 
 
-				stc_ent_doc.save()
-				stc_ent_doc.submit()
+# 				stc_ent_doc.save()
+# 				stc_ent_doc.submit()
 
 				
-	frappe.msgprint("Stock Entry is Successfully Created")
+# 	frappe.msgprint("Stock Entry is Successfully Created")
 
 @frappe.whitelist()
 def make_st_ent(file_name,warehouse_name,doc):
