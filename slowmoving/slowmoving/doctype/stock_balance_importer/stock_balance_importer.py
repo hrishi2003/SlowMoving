@@ -31,7 +31,6 @@ def make_entries(file_name,warehouse_name,doc):
 
 	item_list = frappe.db.get_list('Item',pluck='name')
 	uom_list = frappe.db.get_list('UOM',pluck='name')
-	
 	ic = []
 	l = []
 	for r in range(2,rows_count):
@@ -77,15 +76,51 @@ def make_entries(file_name,warehouse_name,doc):
 				else:
 					frappe.throw("item document is not created")
 
-		stc_bal = frappe.new_doc("Stock Balance Form")
-		if stc_bal:
-			stc_bal.item_code = (ise_file.cell(row=r,column=2)).value
-			stc_bal.item_name = (ise_file.cell(row=r,column=3)).value
-			stc_bal.machine_type = (ise_file.cell(row=r,column=6)).value
-			stc_bal.stock_uom = (ise_file.cell(row=r,column=4)).value
-			stc_bal.warehouse = warehouse_name
-			stc_bal.balance_qty = (ise_file.cell(row=r,column=5)).value
-			stc_bal.save()
+		
+			
+		sb1 = frappe.db.get_values('Stock Balance Form',{'warehouse':warehouse_name},'item_code')
+		for x in sb1:
+			for j in x:
+				l.append(j)
+		sbf = frappe.db.get_list('Stock Balance Form',['item_code','warehouse'])
+
+		k = []
+		for i in sbf:
+			k.append(tuple(i.values()))
+
+		it_c = (ise_file.cell(row=r,column=2)).value
+		
+
+
+
+		if (it_c,warehouse_name) not in k:
+			print('\n\n\n\nDJDJDJJDKJKDJDJK))(((\n\n\n\n')
+			stc_bal = frappe.new_doc("Stock Balance Form")
+			if stc_bal and (ise_file.cell(row=r,column=2)).value:
+				stc_bal.item_code = (ise_file.cell(row=r,column=2)).value
+				stc_bal.item_name = (ise_file.cell(row=r,column=3)).value
+				stc_bal.machine_type = (ise_file.cell(row=r,column=6)).value
+				stc_bal.stock_uom = (ise_file.cell(row=r,column=4)).value
+				stc_bal.warehouse = warehouse_name
+				stc_bal.balance_qty = (ise_file.cell(row=r,column=5)).value
+				stc_bal.save()
+
+		else:
+			
+			for y in l:
+				if y in ic:
+					if y:
+						frappe.log_error(f'yyyyy{y}')
+						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
+						sb.balance_qty = (ise_file.cell(row=r,column=5)).value
+						frappe.log_error(f'balance_qty{sb.balance_qty}')
+						sb.save()
+				else:
+					if y:
+						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
+						sb.balance_qty = 0
+						sb.save()
+
 
 	frappe.msgprint("Stock Balance Form is Successfully Created")
 
