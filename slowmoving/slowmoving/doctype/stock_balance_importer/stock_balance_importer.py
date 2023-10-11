@@ -78,10 +78,9 @@ def make_entries(file_name,warehouse_name,doc):
 
 		
 			
-		sb1 = frappe.db.get_values('Stock Balance Form',{'warehouse':warehouse_name},'item_code')
+		sb1 = frappe.db.get_all('Stock Balance Form',{'warehouse':warehouse_name},'item_code', pluck='item_code')
 		for x in sb1:
-			for j in x:
-				l.append(j)
+			l.append(x)
 		sbf = frappe.db.get_list('Stock Balance Form',['item_code','warehouse'])
 
 		k = []
