@@ -117,8 +117,7 @@ def make_entries(file_name,warehouse_name,doc):
 				else:
 					if y:
 						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
-						sb.balance_qty = 0
-						sb.save()
+						frappe.delete_doc('Stock Balance Form', sb.name)
 
 
 	frappe.msgprint("Stock Balance Form is Successfully Created")
