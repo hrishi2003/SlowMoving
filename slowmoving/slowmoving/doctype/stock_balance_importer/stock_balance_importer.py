@@ -108,7 +108,7 @@ def make_entries(file_name,warehouse_name,doc):
 			
 			for y in l:
 				if y in ic:
-					if y:
+					if y == (ise_file.cell(row=r,column=2)).value:
 						frappe.log_error(f'yyyyy{y}')
 						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
 						sb.balance_qty = (ise_file.cell(row=r,column=5)).value
