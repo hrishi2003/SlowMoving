@@ -3,7 +3,7 @@
 
 frappe.ui.form.on('Stock Balance Importer', {
 	refresh: function(frm) {
-		frm.add_custom_button("Upload Stock Balance Data", 
+		frm.add_custom_button("Stock Balance Data", 
 	 		() => frm.events.import_data(frm)
         );
 	},
