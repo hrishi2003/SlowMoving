@@ -9,8 +9,8 @@ frappe.ui.form.on('Stock Balance Importer', {
 	},
 	 import_data : function(frm) {
 	 	frappe.call({
-				"method":"slowmoving.slowmoving.doctype.stock_balance_importer.stock_balance_importer.make_st_ent",
-				"args":{
+				"method":"slowmoving.slowmoving.doctype.stock_balance_importer.stock_balance_importer.make_entries",
+				"args":{p
 					"file_name": frm.doc.ise_file,
 					"warehouse_name" : frm.doc.warehouse,
 					"doc" : frm.doc.name
