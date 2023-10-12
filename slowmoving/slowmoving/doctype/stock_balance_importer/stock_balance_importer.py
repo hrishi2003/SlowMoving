@@ -248,6 +248,6 @@ def make_entries(file_name,warehouse_name,doc):
 
 @frappe.whitelist()
 def make_st_ent(file_name,warehouse_name,doc):
-	frappe.enqueue(make_entries, queue='long',timeout=4000,file_name=file_name,warehouse_name=warehouse_name,doc=doc)
+	frappe.enqueue(make_entries, queue='long',timeout=15000,file_name=file_name,warehouse_name=warehouse_name,doc=doc)
 
 
