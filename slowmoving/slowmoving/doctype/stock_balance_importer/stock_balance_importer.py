@@ -113,7 +113,7 @@ def make_entries(file_name,warehouse_name,doc):
 
 		else:
 			frappe.log_error(f'd, {d}')
-			for y,q in zip(d.keys(),d.values()):
+			for y in l:
 				if y in ic:
 					if y == (ise_file.cell(row=r,column=2)).value:
 						frappe.log_error(f'yyyyy{y}')
