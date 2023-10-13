@@ -33,6 +33,8 @@ def make_entries(file_name,warehouse_name,doc):
 	uom_list = frappe.db.get_list('UOM',pluck='name')
 	ic = []
 	l = []
+	qt = []
+	
 	for r in range(2,rows_count):
 		uom_list = frappe.db.get_list('UOM',pluck='name')
 		uom_list_lower = [ele.lower() for ele in uom_list]
@@ -79,8 +81,13 @@ def make_entries(file_name,warehouse_name,doc):
 		
 			
 		sb1 = frappe.db.get_all('Stock Balance Form',{'warehouse':warehouse_name},'item_code', pluck='item_code')
+		qty = frappe.db.get_all('Stock Balance Form',{'warehouse':warehouse_name},'balance_qty', pluck='balance_qty')
 		for x in sb1:
 			l.append(x)
+		for qt1 in qty:
+			qt.append(qt1)
+
+		d = dict(zip(l,qt))
 		sbf = frappe.db.get_list('Stock Balance Form',['item_code','warehouse'])
 
 		k = []
@@ -106,16 +113,17 @@ def make_entries(file_name,warehouse_name,doc):
 
 		else:
 			
-			for y in l:
+			for y,q in zip(d.keys(),d.values()):
 				if y in ic:
-					if y == (ise_file.cell(row=r,column=2)).value:
+					if y == (ise_file.cell(row=r,column=2)).value and q != (ise_file.cell(row=r,column=5)).value:
 						frappe.log_error(f'yyyyy{y}')
 						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
-						sb.balance_qty = (ise_file.cell(row=r,column=5)).value
+						sb.balance_qty = q
 						frappe.log_error(f'balance_qty{sb.balance_qty}')
 						sb.save()
 				else:
 					if y:
+						frappe.log_error('Deteted ROW')
 						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
 						sb.balance_qty = 0
 						sb.save()
@@ -249,5 +257,6 @@ def make_entries(file_name,warehouse_name,doc):
 @frappe.whitelist()
 def make_st_ent(file_name,warehouse_name,doc):
 	frappe.enqueue(make_entries, queue='long',file_name=file_name,warehouse_name=warehouse_name,doc=doc)
+	frappe.msgprint("Stock Balance Form is Successfully Created")
 
 
