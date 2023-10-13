@@ -112,7 +112,7 @@ def make_entries(file_name,warehouse_name,doc):
 				stc_bal.save()
 
 		else:
-			frappe.log_error(dict(zip(d.keys(),d.values())))
+			frappe.log_error(f'd, {d}')
 			for y,q in zip(d.keys(),d.values()):
 				if y in ic:
 					if y == (ise_file.cell(row=r,column=2)).value:
