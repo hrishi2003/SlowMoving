@@ -112,20 +112,26 @@ def make_entries(file_name,warehouse_name,doc):
 				stc_bal.save()
 
 		else:
-			for y in l:
-				if y in ic:
-					if y == (ise_file.cell(row=r,column=2)).value:
-						frappe.log_error('Update Stock Balance form')
-						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
-						sb.balance_qty = (ise_file.cell(row=r,column=5)).value
-						sb.save()
-				else:
-					if y:
-						frappe.log_error('Deteted ROW')
-						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
-						sb.balance_qty = 0
-						sb.save()
-						# frappe.delete_doc('Stock Balance Form', sb.name)
+			sb = frappe.get_doc("Stock Balance Form",{'item_code':frappe.db.sql("Select item_code from `tabStock Balance Form` where item_code = %s", (ise_file.cell(row=r,column=2)).value),'warehouse':warehouse_name})
+			sb.balance_qty = (ise_file.cell(row=r,column=5)).value
+			sb1 = frappe.get_doc("Stock Balance Form",{'item_code':frappe.db.sql("Select item_code from `tabStock Balance Form` where item_code != %s", (ise_file.cell(row=r,column=2)).value),'warehouse':warehouse_name})
+			sb1.balance_qty = 0
+			sb.save
+			sb1.save
+			# for y in l:
+			# 	if y in ic:
+			# 		if y == (ise_file.cell(row=r,column=2)).value:
+			# 			frappe.log_error('Update Stock Balance form')
+			# 			sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
+			# 			sb.balance_qty = (ise_file.cell(row=r,column=5)).value
+			# 			sb.save()
+			# 	else:
+			# 		if y:
+			# 			frappe.log_error('Deteted ROW')
+			# 			sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
+			# 			sb.balance_qty = 0
+			# 			sb.save()
+			# 			# frappe.delete_doc('Stock Balance Form', sb.name)
 
 
 	frappe.msgprint("Stock Balance Form is Successfully Created")
