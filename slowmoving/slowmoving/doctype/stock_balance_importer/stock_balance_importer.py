@@ -115,10 +115,10 @@ def make_entries(file_name,warehouse_name,doc):
 			for y in l:
 				if y in ic:
 					if y == (ise_file.cell(row=r,column=2)).value:
-						if frappe.db.exists("Stock Balance Form", {"item_code": (ise_file.cell(row=r,column=2)).value,'warehouse':warehouse_name,"balance_qty":['!=',(ise_file.cell(row=r,column=5)).value]}):
-							sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
-							sb.balance_qty = (ise_file.cell(row=r,column=5)).value
-							sb.save()
+						frappe.log_error('Update Stock Balance form')
+						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
+						sb.balance_qty = (ise_file.cell(row=r,column=5)).value
+						sb.save()
 				else:
 					if y:
 						frappe.log_error('Deteted ROW')
