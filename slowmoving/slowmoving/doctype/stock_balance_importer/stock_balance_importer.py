@@ -255,7 +255,7 @@ def make_entries(file_name,warehouse_name,doc):
 
 @frappe.whitelist()
 def make_st_ent(file_name,warehouse_name,doc):
-	frappe.enqueue(make_entries, queue='long',timeout=5000,file_name=file_name,warehouse_name=warehouse_name,doc=doc)
+	frappe.enqueue(make_entries, queue='long',timeout=8000,file_name=file_name,warehouse_name=warehouse_name,doc=doc)
 	frappe.msgprint("Stock Balance Form is Successfully Created")
 
 
