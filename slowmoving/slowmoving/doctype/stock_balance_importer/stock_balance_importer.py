@@ -112,7 +112,7 @@ def make_entries(file_name,warehouse_name,doc):
 				stc_bal.save()
 
 		else:
-			sb1 = frappe.get_doc("Stock Balance Form",{'item_code':frappe.db.sql("Select item_code from `tabStock Balance Form` where item_code = %s", (ise_file.cell(row=r,column=2)).value),'warehouse':warehouse_name})
+			frappe.log_error(f'ic,{ic}')
 			for y in l:
 				if y in ic:
 					if y == (ise_file.cell(row=r,column=2)).value:
@@ -121,7 +121,7 @@ def make_entries(file_name,warehouse_name,doc):
 						sb.balance_qty = (ise_file.cell(row=r,column=5)).value
 						sb.save()
 				else:
-					if y:
+					if y != (ise_file.cell(row=r,column=2)).value:
 						frappe.log_error('Deteted ROW')
 						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
 						sb.balance_qty = 0
