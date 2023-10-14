@@ -112,6 +112,7 @@ def make_entries(file_name,warehouse_name,doc):
 				stc_bal.save()
 
 		else:
+			sb1 = frappe.get_doc("Stock Balance Form",{'item_code':frappe.db.sql("Select item_code from `tabStock Balance Form` where item_code = %s", (ise_file.cell(row=r,column=2)).value),'warehouse':warehouse_name})
 			for y in l:
 				if y in ic:
 					if y == (ise_file.cell(row=r,column=2)).value:
