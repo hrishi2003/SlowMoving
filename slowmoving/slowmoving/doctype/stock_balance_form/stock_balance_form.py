@@ -84,7 +84,10 @@ def make_entries(file_name, warehouse_name, doc):
         for entry in sbf_entries:
             item_code = entry.get('item_code')
             if item_code not in existing_item_codes:
-                update_stock_balance(item_code, warehouse_name, 0)
+                stc_bal = frappe.get_doc("SBF TEST", {'item_code':item_code, 'warehouse': warehouse_name})
+                stc_bal.balance_qty = 0
+                stc_bal.save()
+                
 
         frappe.msgprint("SBF TEST is Successfully Created")
     except Exception as e:
