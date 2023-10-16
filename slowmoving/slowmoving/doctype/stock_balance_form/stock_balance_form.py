@@ -45,7 +45,7 @@ def update_stock_balance(item_code, warehouse_name, balance_qty):
     it_cd = []
     sbf = frappe.db.get_list('SBF TEST', {'item_code': item_code, 'warehouse': warehouse_name})
     it_cd.append(item_code)
-	
+    frappe.log_error(f'items,{it_cd}')
     if not sbf:
         # Create a new SBF TEST entry
         stc_bal = frappe.new_doc("SBF TEST")
