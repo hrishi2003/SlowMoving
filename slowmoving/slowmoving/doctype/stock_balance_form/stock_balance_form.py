@@ -57,7 +57,7 @@ def update_stock_balance(item_code, warehouse_name, balance_qty):
         if stc_bal.item_code not in it_cd:
             stc_bal.balance_qty = 0
 
-    stc_bal.balance_qty = balance_qty
+    stc_bal.balance_qty = balance_qty or 0
     stc_bal.save()
 
 @frappe.whitelist()
