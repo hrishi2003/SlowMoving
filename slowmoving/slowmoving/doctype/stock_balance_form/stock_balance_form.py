@@ -52,7 +52,7 @@ def update_stock_balance(item_code, warehouse_name, balance_qty):
     else:
         # Update the existing SBF TEST entry
         stc_bal = frappe.get_doc("SBF TEST", sbf[0].name)
-        if not balance_qty:
+        if stc_bal.item_code != item_code:
             stc_bal.balance_qty = 0
 
     stc_bal.balance_qty = balance_qty
