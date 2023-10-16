@@ -52,6 +52,8 @@ def update_stock_balance(item_code, warehouse_name, balance_qty):
     else:
         # Update the existing SBF TEST entry
         stc_bal = frappe.get_doc("SBF TEST", sbf[0].name)
+        if not balance_qty:
+            stc_bal.balance_qty = 0
 
     stc_bal.balance_qty = balance_qty
     stc_bal.save()
@@ -65,7 +67,7 @@ def make_entries(file_name, warehouse_name, doc):
         media_file_path = frappe.get_doc("File", {"file_url": file_name}).get_full_path()
         ise_sheet = openpyxl.load_workbook(media_file_path)
         ise_file = ise_sheet.active
-        it_cd = []
+        # it_cd = []
 
         for row in range(2, ise_file.max_row + 1):
             item_code = ise_file.cell(row=row, column=2).value
@@ -73,17 +75,10 @@ def make_entries(file_name, warehouse_name, doc):
             uom = ise_file.cell(row=row, column=4).value
             balance_qty = ise_file.cell(row=row, column=5).value
             machine_type = ise_file.cell(row=row, column=6).value
-            it_cd.append(item_code)
+            # it_cd.append(item_code)
 
             create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty, machine_type)
-
-        for item in frappe.db.get_all("SBF TEST", {'warehouse': warehouse_name}, 'item_code', pluck = 'item_code'):
-            if item not in it_cd:
-                sb = frappe.get_doc("SBF TEST", {'item_code': item,'warehouse': warehouse_name})
-                sb.balance_qty = 0
-                sb.save()
 		    
-
         frappe.msgprint("SBF TEST is Successfully Created")
     except Exception as e:
         frappe.log_error(f"Error in make_entries: {str(e)}")
