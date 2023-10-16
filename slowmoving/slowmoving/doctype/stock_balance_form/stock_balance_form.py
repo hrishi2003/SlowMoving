@@ -67,6 +67,7 @@ def make_entries(file_name, warehouse_name, doc):
 
         # Create a list to track existing item codes from the Excel data
         existing_item_codes = []
+        l=[]
 
         for row in range(2, ise_file.max_row + 1):
             item_code = ise_file.cell(row=row, column=2).value
@@ -76,7 +77,29 @@ def make_entries(file_name, warehouse_name, doc):
             machine_type = ise_file.cell(row=row, column=6).value
 
             create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty, machine_type)
-		
+
+            existing_item_codes.append(item_code)
+
+        # Set balance_qty to 0 for items not found in the uploaded Excel data
+        frappe.log_error(f'items,{existing_item_codes}')
+        sbf_entries = frappe.get_all('SBF TEST', filters={'warehouse': warehouse_name}, 'item_code', pluck='item_code')
+        for item in sbf_entries:
+            # item_code = entry.get('item_code')
+            frappe.log_error(f'item2,{item}')
+            if item not in existing_item_codes and item is not None:
+                l.append(item)
+                # frappe.log_error(f'item1,{item}')
+                # stc_bal = frappe.get_doc("SBF TEST", {'item_code':item, 'warehouse': warehouse_name})
+                # stc_bal.balance_qty = 0
+                # stc_bal.save()
+        frappe.log_error(f"l,{l}")
+        for i in l:
+            stc_bal = frappe.get_doc("SBF TEST", {'item_code':i, 'warehouse': warehouse_name})
+            stc_bal.balance_qty = 0
+            stc_bal.save()
+
+                
+
         frappe.msgprint("SBF TEST is Successfully Created")
     except Exception as e:
         frappe.log_error(f"Error in make_entries: {str(e)}")
