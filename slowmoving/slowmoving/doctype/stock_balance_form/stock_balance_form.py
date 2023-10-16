@@ -83,7 +83,7 @@ def make_entries(file_name, warehouse_name, doc):
         sbf_entries = frappe.get_all('SBF TEST', filters={'warehouse': warehouse_name})
         for entry in sbf_entries:
             item_code = entry.get('item_code')
-            if item_code not in existing_item_codes:
+            if item_code not in existing_item_codes and item_code is not None:
                 stc_bal = frappe.get_doc("SBF TEST", {'item_code':item_code, 'warehouse': warehouse_name})
                 stc_bal.balance_qty = 0
                 stc_bal.save()
