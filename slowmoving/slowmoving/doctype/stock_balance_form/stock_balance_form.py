@@ -55,6 +55,7 @@ def update_stock_balance(item_code, warehouse_name, balance_qty):
     stc_bal.balance_qty = balance_qty
     stc_bal.save()
 
+@frappe.whitelist()
 def make_entries(file_name, warehouse_name, doc):
     try:
         if not is_excel_file(file_name):
