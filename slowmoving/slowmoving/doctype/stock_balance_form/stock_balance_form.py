@@ -64,7 +64,9 @@ def make_entries(file_name, warehouse_name, doc):
         media_file_path = frappe.get_doc("File", {"file_url": file_name}).get_full_path()
         ise_sheet = openpyxl.load_workbook(media_file_path)
         ise_file = ise_sheet.active
-        it_cd = []
+
+        # Create a list to track existing item codes from the Excel data
+        existing_item_codes = []
 
         for row in range(2, ise_file.max_row + 1):
             item_code = ise_file.cell(row=row, column=2).value
@@ -72,14 +74,16 @@ def make_entries(file_name, warehouse_name, doc):
             uom = ise_file.cell(row=row, column=4).value
             balance_qty = ise_file.cell(row=row, column=5).value
             machine_type = ise_file.cell(row=row, column=6).value
-            it_cd.append(item_code)
 
             create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty, machine_type)
-		    
-        # After processing the Excel file, set balance_qty to 0 for items not found
-        existing_items = frappe.db.get_list('SBF TEST',{'warehouse':warehouse_name}, 'item_code', pluck='item_code')
-        for item_code in existing_items:
-            if item_code not in it_cd:
+
+            existing_item_codes.append(item_code)
+
+        # Set balance_qty to 0 for items not found in the uploaded Excel data
+        sbf_entries = frappe.get_all('SBF TEST', filters={'warehouse': warehouse_name})
+        for entry in sbf_entries:
+            item_code = entry.get('item_code')
+            if item_code not in existing_item_codes:
                 update_stock_balance(item_code, warehouse_name, 0)
 
         frappe.msgprint("SBF TEST is Successfully Created")
