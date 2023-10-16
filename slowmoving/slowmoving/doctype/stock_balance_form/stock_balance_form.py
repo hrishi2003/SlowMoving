@@ -88,15 +88,8 @@ def make_entries(file_name, warehouse_name, doc):
             frappe.log_error(f'item2,{item}')
             if item not in existing_item_codes and item is not None:
                 l.append(item)
-                # frappe.log_error(f'item1,{item}')
-                # stc_bal = frappe.get_doc("SBF TEST", {'item_code':item, 'warehouse': warehouse_name})
-                # stc_bal.balance_qty = 0
-                # stc_bal.save()
         frappe.log_error(f"l,{l}")
-        for i in l:
-            stc_bal = frappe.get_doc("SBF TEST", {'item_code':i, 'warehouse': warehouse_name})
-            stc_bal.balance_qty = 0
-            stc_bal.save()
+        
 
                 
 
