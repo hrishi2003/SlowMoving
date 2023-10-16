@@ -42,16 +42,16 @@ def create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty
     update_stock_balance(item_code, warehouse_name, balance_qty)
 
 def update_stock_balance(item_code, warehouse_name, balance_qty):
-    sbf = frappe.db.get_list('Stock Balance Form', {'item_code': item_code, 'warehouse': warehouse_name})
+    sbf = frappe.db.get_list('SBF TEST', {'item_code': item_code, 'warehouse': warehouse_name})
 
     if not sbf:
-        # Create a new Stock Balance Form entry
-        stc_bal = frappe.new_doc("Stock Balance Form")
+        # Create a new SBF TEST entry
+        stc_bal = frappe.new_doc("SBF TEST")
         stc_bal.item_code = item_code
         stc_bal.warehouse = warehouse_name
     else:
-        # Update the existing Stock Balance Form entry
-        stc_bal = frappe.get_doc("Stock Balance Form", sbf[0].name)
+        # Update the existing SBF TEST entry
+        stc_bal = frappe.get_doc("SBF TEST", sbf[0].name)
 
     stc_bal.balance_qty = balance_qty
     stc_bal.save()
@@ -75,7 +75,7 @@ def make_entries(file_name, warehouse_name, doc):
 
             create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty, machine_type)
 
-        frappe.msgprint("Stock Balance Form is Successfully Created")
+        frappe.msgprint("SBF TEST is Successfully Created")
     except Exception as e:
         frappe.log_error(f"Error in make_entries: {str(e)}")
         frappe.throw("An error occurred while processing the file.")
