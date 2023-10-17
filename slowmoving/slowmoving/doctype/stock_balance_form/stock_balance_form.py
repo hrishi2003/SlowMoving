@@ -93,6 +93,9 @@ def make_entries(file_name, warehouse_name, doc):
             # item_code = entry.get('item_code')
             if k not in existing_ic:
                 l.append(k)
+                sbf_get = frappe.get_doc('SBF TEST', {'item_code':k,'warehouse': warehouse_name})
+                sbf_get.balance_qty = 0
+                sbf_get.save()
         frappe.log_error(f"l,{l}")
         
 
