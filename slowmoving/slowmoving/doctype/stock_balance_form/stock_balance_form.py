@@ -68,6 +68,7 @@ def make_entries(file_name, warehouse_name, doc):
         # Create a list to track existing item codes from the Excel data
         existing_item_codes = []
         l=[]
+        existing_ic = []
 
         for row in range(2, ise_file.max_row + 1):
             item_code = ise_file.cell(row=row, column=2).value
@@ -82,11 +83,15 @@ def make_entries(file_name, warehouse_name, doc):
 
         # Set balance_qty to 0 for items not found in the uploaded Excel data
         frappe.log_error(f'items,{existing_item_codes}')
+        for j in existing_item_codes:
+            existing_ic.append(str(j))
+
+        frappe.log_error(f'formatted_items,{existing_ic}')
         sbf_entries = frappe.db.get_all('SBF TEST', {'warehouse': warehouse_name}, 'item_code', pluck='item_code')
         frappe.log_error(f'entries,{sbf_entries}')
         for k in sbf_entries:
             # item_code = entry.get('item_code')
-            if k not in existing_item_codes:
+            if k not in existing_ic:
                 l.append(k)
         frappe.log_error(f"l,{l}")
         
