@@ -12,124 +12,88 @@ from datetime import datetime
 class StockBalanceImporter(Document):
 	pass
 
+def is_excel_file(file_name):
+    _, ext = os.path.splitext(file_name)
+    return ext == '.xlsx'
+
+def create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty, machine_type):
+    item_list = frappe.db.get_list('Item', pluck='name')
+    uom_list_lower = [uom.lower() for uom in frappe.db.get_list('UOM', pluck='name')]
+
+    if item_code not in item_list and not frappe.db.exists("Item", item_code):
+        item_doc = frappe.new_doc("Item")
+        item_doc.item_code = item_code
+        item_doc.item_name = item_name
+        item_doc.machine_type = machine_type
+        item_doc.item_group = "Products"
+        item_doc.has_batch_no = 0
+
+        if uom.lower() not in uom_list_lower:
+            uom_doc = frappe.new_doc("UOM")
+            uom_doc.uom_name = uom
+            uom_doc.save()
+            item_doc.stock_uom = uom
+        else:
+            item_doc.stock_uom = uom
+
+        item_doc.save()
+
+    update_stock_balance(item_code, warehouse_name, balance_qty, machine_type)
+
+def update_stock_balance(item_code, warehouse_name, balance_qty, machine_type):
+    sbf = frappe.db.get_list('Stock Balance Form', {'item_code': item_code, 'warehouse': warehouse_name})
+    if not sbf:
+        # Create a new SBF TEST entry
+        stc_bal = frappe.new_doc("Stock Balance Form")
+        stc_bal.item_code = item_code
+        stc_bal.warehouse = warehouse_name
+        stc_bal.machine_type = machine_type
+    else:
+        # Update the existing SBF TEST entry
+        stc_bal = frappe.get_doc("Stock Balance Form", sbf[0].name)
+
+    stc_bal.balance_qty = balance_qty
+    stc_bal.save()
+
 @frappe.whitelist()
-def make_entries(file_name,warehouse_name,doc):
-	frappe.log_error('sdjsjdsajdjjsdjsadjsajbj')
-	print('\n\n\n\njajsjjsaj\n\n\n\n\n\n')
-	ware_doc = frappe.get_doc("Warehouse",warehouse_name)
-	media_file_path = frappe.get_doc("File", {"file_url": file_name}).get_full_path()
-	split_tup = os.path.splitext(media_file_path)
-	if split_tup[1] != '.xlsx':
-		frappe.throw('Please upload .xlsx format')
-	
-	ise_sheet = openpyxl.load_workbook(media_file_path)
-	ise_file = ise_sheet.active
-	rows_count = (ise_file.max_row)+1
-	
-	
-	
+def make_entries(file_name, warehouse_name, doc):
+    try:
+        if not is_excel_file(file_name):
+            frappe.throw('Please upload .xlsx format')
 
-	item_list = frappe.db.get_list('Item',pluck='name')
-	uom_list = frappe.db.get_list('UOM',pluck='name')
-	ic = []
-	l = []
-	qt = []
-	bal_qt = []
-	for r in range(2,rows_count):
-		uom_list = frappe.db.get_list('UOM',pluck='name')
-		uom_list_lower = [ele.lower() for ele in uom_list]
-		uom = (ise_file.cell(row=r,column=4)).value
-		item_code = (ise_file.cell(row=r,column=2)).value
-		ic.append(item_code)
-		if uom is not None:
-			uom_lower = uom.lower()
-			if uom and uom_lower not in uom_list_lower:
-				uom_doc = frappe.new_doc("UOM")
-				if uom_doc:
-					uom_doc.uom_name = uom
-					uom_doc.save()
-				else:
-					frappe.throw("uom document not created")
+        media_file_path = frappe.get_doc("File", {"file_url": file_name}).get_full_path()
+        ise_sheet = openpyxl.load_workbook(media_file_path)
+        ise_file = ise_sheet.active
 
+        # Create a list to track existing item codes from the Excel data
+        existing_item_codes = []
+        l=[]
 
-			item = (ise_file.cell(row=r, column=2)).value
-			qty = (ise_file.cell(row=r,column=5)).value
-			item = str(item)
+        for row in range(2, ise_file.max_row + 1):
+            item_code = ise_file.cell(row=row, column=2).value
+            item_name = ise_file.cell(row=row, column=3).value
+            uom = ise_file.cell(row=row, column=4).value
+            balance_qty = ise_file.cell(row=row, column=5).value
+            machine_type = ise_file.cell(row=row, column=6).value
 
-			
-			
+            create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty, machine_type)
 
-			if item not in item_list and not frappe.db.exists("Item",item):
-				item_doc = frappe.new_doc("Item")
-				if item_doc :
-					item_doc.item_code = item
-					name = (ise_file.cell(row=r,column=3)).value
-					# packing_date = (ise_file.cell(row=r,column=1)).value
-					# packing_date = str(packing_date)
-					# pack_date = datetime.strptime(str(packing_date),'%Y-%m-%d %H:%M:%S').date()
-					item_doc.item_name = name
-					item_doc.machine_type = (ise_file.cell(row=r,column=6)).value
-					item_doc.item_group = "Products"
-					item_doc.has_batch_no = 0
-					
-					uom = (ise_file.cell(row=r,column=4)).value
-					item_doc.stock_uom = uom
-					item_doc.save()
-				else:
-					frappe.throw("item document is not created")
+            existing_item_codes.append(item_code)
 
-		
-			
-		sb1 = frappe.db.get_all('Stock Balance Form',{'warehouse':warehouse_name},'item_code', pluck='item_code')
-		qty = frappe.db.get_all('Stock Balance Form',{'warehouse':warehouse_name},'balance_qty', pluck='balance_qty')
-		for x in sb1:
-			l.append(x)
-		for qt1 in qty:
-			qt.append(qt1)
+        # Set balance_qty to 0 for items not found in the uploaded Excel data
+        frappe.log_error(f'items,{existing_item_codes}')
+        sbf_entries = frappe.get_all('Stock Balance Form', {'warehouse': warehouse_name}, 'item_code', pluck='item_code')
+        for item in sbf_entries:
+            # item_code = entry.get('item_code')
+            frappe.log_error(f'item2,{item}')
+            if item not in existing_item_codes and item is not None:
+                l.append(item)
+        frappe.log_error(f"l,{l}")
+        frappe.msgprint("Stock Balance Form is Successfully Created")
+    except Exception as e:
+        frappe.log_error(f"Error in make_entries: {str(e)}")
+        frappe.throw("An error occurred while processing the file.")
 
-		d = dict(zip(l,qt))
-		sbf = frappe.db.get_list('Stock Balance Form',['item_code','warehouse'])
-
-		k = []
-		for i in sbf:
-			k.append(tuple(i.values()))
-
-		it_c = (ise_file.cell(row=r,column=2)).value
-		
-
-
-
-		if (it_c,warehouse_name) not in k:
-			print('\n\n\n\nDJDJDJJDKJKDJDJK))(((\n\n\n\n')
-			stc_bal = frappe.new_doc("Stock Balance Form")
-			if stc_bal and (ise_file.cell(row=r,column=2)).value:
-				stc_bal.item_code = (ise_file.cell(row=r,column=2)).value
-				stc_bal.item_name = (ise_file.cell(row=r,column=3)).value
-				stc_bal.machine_type = (ise_file.cell(row=r,column=6)).value
-				stc_bal.stock_uom = (ise_file.cell(row=r,column=4)).value
-				stc_bal.warehouse = warehouse_name
-				stc_bal.balance_qty = (ise_file.cell(row=r,column=5)).value
-				stc_bal.save()
-
-		else:
-			frappe.log_error(f'ic,{ic}')
-			for y in l:
-				if y in ic:
-					if y == (ise_file.cell(row=r,column=2)).value:
-						frappe.log_error('Update Stock Balance form')
-						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
-						sb.balance_qty = (ise_file.cell(row=r,column=5)).value
-						sb.save()
-				else:
-					if y != (ise_file.cell(row=r,column=2)).value:
-						frappe.log_error('Deteted ROW')
-						sb = frappe.get_doc("Stock Balance Form",{'item_code':y,'warehouse':warehouse_name})
-						sb.balance_qty = 0
-						sb.save()
-						# frappe.delete_doc('Stock Balance Form', sb.name)
-
-
-	frappe.msgprint("Stock Balance Form is Successfully Created")
 
 # 		stc_ent_doc = frappe.new_doc("Stock Entry")
 # 		availabe_qty = frappe.db.get_value('Bin',{'item_code':item, 'warehouse':warehouse_name} ,'actual_qty')
@@ -253,9 +217,9 @@ def make_entries(file_name,warehouse_name,doc):
 				
 # 	frappe.msgprint("Stock Entry is Successfully Created")
 
-@frappe.whitelist()
-def make_st_ent(file_name,warehouse_name,doc):
-	frappe.enqueue(make_entries, queue='long',timeout=8000,file_name=file_name,warehouse_name=warehouse_name,doc=doc)
-	frappe.msgprint("Stock Balance Form is Successfully Created")
+# @frappe.whitelist()
+# def make_st_ent(file_name,warehouse_name,doc):
+# 	frappe.enqueue(make_entries, queue='long',timeout=8000,file_name=file_name,warehouse_name=warehouse_name,doc=doc)
+# 	frappe.msgprint("Stock Balance Form is Successfully Created")
 
 
