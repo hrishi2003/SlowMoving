@@ -82,10 +82,10 @@ def make_entries(file_name, warehouse_name, doc):
 
         # Set balance_qty to 0 for items not found in the uploaded Excel data
         frappe.log_error(f'items,{existing_item_codes}')
-        sbf_entries = frappe.db.get_list('SBF TEST', {'warehouse': warehouse_name}, 'item_code', pluck='item_code')
+        sbf_entries = frappe.db.get_all('SBF TEST', {'warehouse': warehouse_name}, 'item_code', pluck='item_code')
+        frappe.log_error(f'entries,{sbf_entries}')
         for k in sbf_entries:
             # item_code = entry.get('item_code')
-            frappe.log_error(f'item2,{k}')
             if k not in existing_item_codes:
                 l.append(k)
         frappe.log_error(f"l,{l}")
