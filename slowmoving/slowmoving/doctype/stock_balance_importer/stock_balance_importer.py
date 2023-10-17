@@ -7,7 +7,7 @@ import os
 import openpyxl
 import frappe
 
-class StockBalanceForm(Document):
+class StockBalanceImporter(Document):
 	pass
 
 
