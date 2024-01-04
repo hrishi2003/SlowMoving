@@ -66,6 +66,7 @@ def make_entries(file_name, warehouse_name, doc):
         media_file_path = frappe.get_doc("File", {"file_url": file_name}).get_full_path()
         ise_sheet = openpyxl.load_workbook(media_file_path)
         ise_file = ise_sheet.active
+        frappe.log_error(f'len,{ise_file.max_row}')
 
         # Create a list to track existing item codes from the Excel data
         existing_item_codes = []
