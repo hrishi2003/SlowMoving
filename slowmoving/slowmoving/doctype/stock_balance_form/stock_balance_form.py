@@ -71,11 +71,11 @@ def make_entries(file_name, warehouse_name, doc):
         existing_ic = []
 
         for row in range(2, ise_file.max_row + 1):
-            item_code = ise_file.cell(row=row, column=2).value
-            item_name = ise_file.cell(row=row, column=3).value
-            uom = ise_file.cell(row=row, column=4).value
-            balance_qty = ise_file.cell(row=row, column=5).value
-            machine_type = ise_file.cell(row=row, column=6).value
+            item_code = ise_file.cell(row=row, column=2).value if ise_file.cell(row=row, column=2).value is not None
+            item_name = ise_file.cell(row=row, column=3).value if ise_file.cell(row=row, column=3).value is not None
+            uom = ise_file.cell(row=row, column=4).value if ise_file.cell(row=row, column=4).value is not None
+            balance_qty = ise_file.cell(row=row, column=5).value if ise_file.cell(row=row, column=5).value is not None
+            machine_type = ise_file.cell(row=row, column=6).value if ise_file.cell(row=row, column=6).value is not None
 
             create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty, machine_type)
 
