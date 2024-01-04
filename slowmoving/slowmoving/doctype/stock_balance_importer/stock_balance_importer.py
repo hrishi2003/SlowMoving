@@ -77,6 +77,7 @@ def make_entries(file_name, warehouse_name, doc):
             uom = ise_file.cell(row=row, column=4).value
             balance_qty = ise_file.cell(row=row, column=5).value
             machine_type = ise_file.cell(row=row, column=6).value
+            frappe.log_error(f'it_c,{item_code}')
             frappe.log_error(f'uom,{uom}')
 
             create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty, machine_type)
