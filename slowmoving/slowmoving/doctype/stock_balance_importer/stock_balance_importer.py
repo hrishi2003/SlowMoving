@@ -18,6 +18,7 @@ def is_excel_file(file_name):
     return ext == '.xlsx'
 
 def create_or_update_item(item_code, item_name, uom, warehouse_name, balance_qty, machine_type):
+    frappe.log_error(f'it_c,{item_code},{uom}')
     item_list = frappe.db.get_list('Item', pluck='name')
     uom_list_lower = [uom.lower() for uom in frappe.db.get_list('UOM', pluck='name')]
 
