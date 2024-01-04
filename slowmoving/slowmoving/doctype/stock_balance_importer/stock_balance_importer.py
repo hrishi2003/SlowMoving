@@ -73,7 +73,7 @@ def make_entries(file_name, warehouse_name, doc):
         l=[]
         existing_ic = []
 
-        for row in range(2, ise_file.max_row + 1):
+        for row in range(2, ise_file.max_row):
             frappe.log_error(f"row,{row}")
             item_code = ise_file.cell(row=row, column=2).value
             item_name = ise_file.cell(row=row, column=3).value
